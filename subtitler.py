@@ -74,11 +74,11 @@ class Subtitler:
     def encode_sub(subtitle):
         temp = str(time.time()) + '.tmp'
         try:
-            with open(subtitle, encoding='UTF-8') as input:
-                data = input.read()
+            with open(subtitle, encoding='UTF-8') as input_sub:
+                data = input_sub.read()
         except:
-            with open(subtitle, encoding='ISO-8859-1') as input:
-                data = input.read()
+            with open(subtitle, encoding='ISO-8859-1') as input_sub:
+                data = input_sub.read()
 
         print("Encoding subtitle {:s} to UTF-8".format(subtitle))
         with open(temp, 'w+') as output:
@@ -86,7 +86,7 @@ class Subtitler:
                 data = data[1:]
             output.write(data)
 
-        input.close()
+        input_sub.close()
         output.close()
 
         shutil.move(temp, subtitle)
