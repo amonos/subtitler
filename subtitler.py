@@ -82,6 +82,7 @@ class Subtitler:
 
         print("Encoding subtitle {:s} to UTF-8".format(subtitle))
         with open(temp, 'w+') as output:
+            # Removes BOM from UTF-8 file
             if data.startswith(u'\ufeff'):
                 data = data[1:]
             output.write(data)
