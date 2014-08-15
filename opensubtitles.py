@@ -39,7 +39,7 @@ class OpenSubtitles:
         Get data from the XMLRPC response, or None if an error occured
         :param data:
         :param key:
-        :return: Value of key
+        :return:
         """
         status = data.get('status').split()[0]
         return data.get(key) if '200' == status else None
@@ -49,7 +49,7 @@ class OpenSubtitles:
         """
         Opensubtitles' hash method for searching based on movie file
         :param vid_name:
-        :return: The hash string
+        :return:
         """
         try:
             long_long_format = 'q'  # long long
@@ -86,7 +86,7 @@ class OpenSubtitles:
     def login(self):
         """
         Log in to opensubtitles as anonymous user
-        :return: The authorization token
+        :return:
         """
         data = self.xmlrpc.LogIn(None, None, self.LANGUAGE, self.USER_AGENT)
         return self.get_from_data_or_none(data, 'token')
@@ -95,7 +95,7 @@ class OpenSubtitles:
         """
         Search the subtitle database
         :param params:
-        :return: The subtitle list
+        :return:
         """
         data = self.xmlrpc.SearchSubtitles(self.token, params)
         return self.get_from_data_or_none(data, 'data')
@@ -104,7 +104,7 @@ class OpenSubtitles:
         """
         Retrive the subtitles
         :param subtitle_ids:
-        :return: The subtitle data
+        :return:
         """
         data = self.xmlrpc.DownloadSubtitles(self.token, subtitle_ids)
         return self.get_from_data_or_none(data, 'data')
