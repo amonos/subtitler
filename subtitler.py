@@ -179,11 +179,11 @@ class Subtitler:
             for arg in sys.argv:
                 if os.path.exists(arg) and os.path.isdir(arg):
                     for file in os.listdir(arg):
-                        self.detect_file_type(file, videos, subtitles)
+                        self.detect_file_type(os.path.join(arg, file), videos, subtitles)
                 elif os.path.exists(arg) and os.path.isfile(arg):
                     self.detect_file_type(arg, videos, subtitles)
                 else:
-                    print("Invalid arguments")
+                    print("No such file or directory: {:s}".format(arg))
                     sys.exit(1)
         else:
             print("Usage: subtitler.py [file...|directory]")
