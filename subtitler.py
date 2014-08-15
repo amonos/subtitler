@@ -16,20 +16,19 @@ class Subtitler:
         vid_hash = opensubtitles.hash(video)
         sub_infos = opensubtitles.search_subtitles([{'sublanguageid': language, 'moviehash': vid_hash, 'moviebytesize': str(os.path.getsize(video))}])
         if sub_infos:
-            for sub_info in sub_infos:
-                print("Downloading subtitle: {:s}".format(sub_info.get('SubFileName')))
-                subtitles = opensubtitles.download_subtitle([sub_info.get('IDSubtitleFile')])
-                if subtitles:
-                    subtitle = subtitles[0].get('data')
+            print("Downloading subtitle: {:s}".format(sub_infos[0].get('SubFileName')))
+            subtitles = opensubtitles.download_subtitle([sub_infos[0].get('IDSubtitleFile')])
+            if subtitles:
+                subtitle = subtitles[0].get('data')
 
-                    vid_match = re.search('(.*)\.(avi|mkv|mp4)$', video)
-                    if vid_match:
-                        vid_name = vid_match.group(1)
+                vid_match = re.search('(.*)\.(avi|mkv|mp4)$', video)
+                if vid_match:
+                    vid_name = vid_match.group(1)
 
-                        sub_file = vid_name + '.' + language + '.srt'
-                        print("Writing subtitle to file: {:s}".format(sub_file))
-                        opensubtitles.write_subtitle_file(subtitle, sub_file)
-                        return sub_file
+                    sub_file = vid_name + '.' + language + '.srt'
+                    print("Writing subtitle to file: {:s}".format(sub_file))
+                    opensubtitles.write_subtitle_file(subtitle, sub_file)
+                    return sub_file
                 else:
                     print("Couldn't download subtitle for video {:s} with language {:s}".format(video, language))
                     return None
