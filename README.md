@@ -15,10 +15,9 @@ $ python subtitler.py [video|subtitle|directory]...
 
 Additional information:
 -----------------------
-If there are multiple video (and subtitle) files in the arguments (or the input directory)
-then they will be matched by season/episode number (eg.: series), or episode number
-(eg.: animes).
+If there are multiple videos (and/or subtitles) on the input then they will be matched by
+season/episode information in the filenames.
 
-Multiple videos whitout season/episode in the filename, or multiple CDs for a movie is not supported.
+Multiple videos whitout season/episode information in the filename, or multiple CDs for a movie is not supported.
 
 Python 3 required
