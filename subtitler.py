@@ -186,7 +186,7 @@ class Subtitler:
                     print("No such file or directory: {:s}".format(arg))
                     sys.exit(1)
         else:
-            print("Usage: subtitler.py [file...|directory]")
+            print("Usage: {:s} [video|subtitle|directory]...".format(os.path.basename(sys.argv[0])))
             sys.exit(1)
 
         if len(videos) == 0:

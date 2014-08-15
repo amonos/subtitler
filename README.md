@@ -10,13 +10,7 @@ there isn't any subtitle files in the commandline arguments.
 Usage:
 ------
 ```
-$ python subtitler.py <video1.mkv> <sub1.srt> <video2.mp4> <sub2.ass> <video3.avi> <sub3.srt>
-```
-
-or
-
-```
-$ python subtitler.py </path/to/video/files>
+$ python subtitler.py [video|subtitle|directory]...
 ```
 
 Additional information:
