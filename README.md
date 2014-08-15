@@ -9,11 +9,15 @@ there isn't any subtitle files in the commandline arguments.
 
 Usage:
 ------
-python subtitler.py &lt;video1.mkv&gt; &lt;sub1.srt&gt; &lt;video2.mp4&gt; &lt;sub2.ass&gt; &lt;video3.avi&gt; &lt;sub3.srt&gt;
+```
+$ python subtitler.py &lt;video1.mkv&gt; &lt;sub1.srt&gt; &lt;video2.mp4&gt; &lt;sub2.ass&gt; &lt;video3.avi&gt; &lt;sub3.srt&gt;
+```
 
 or
 
-python subtitler.py &lt;/path/to/video/files&gt;
+```
+$ python subtitler.py &lt;/path/to/video/files&gt;
+```
 
 Additional information:
 -----------------------
