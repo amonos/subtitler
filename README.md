@@ -22,3 +22,5 @@ then they will be matched by season/episode number (eg.: series), or episode num
 (eg.: animes).
 
 Multiple videos whitout season/episode in the filename, or multiple CDs for a movie is not supported.
+
+Python 3 required
