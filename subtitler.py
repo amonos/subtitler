@@ -11,6 +11,12 @@ class Subtitler:
 
     @staticmethod
     def download_subtitle(video, language):
+        """
+        Download subtitle from http://www.opensubtitles.org
+        :param video:
+        :param language:
+        :return:
+        """
         opensubtitles = OpenSubtitles()
         print("Searching subtitles for video: {:s}".format(video))
         vid_hash = opensubtitles.hash(video)
@@ -37,7 +43,67 @@ class Subtitler:
             return None
 
     @staticmethod
+    def fetch_subtitles(videos, subtitles):
+        """
+        Try to download english and hungarian subtitles for the video file
+        :param videos:
+        :param subtitles:
+        :return:
+        """
+        for video in videos:
+            subtitles.append(Subtitler.download_subtitle(video, 'hun'))
+            subtitles.append(Subtitler.download_subtitle(video, 'eng'))
+
+        if len(subtitles) == 0:
+            print("No subtitles found!\n")
+            sys.exit(1)
+
+        for subtitle in subtitles:
+            if subtitle is not None:
+                Subtitler.encode_sub(subtitle)
+        subtitles.clear()
+
+    @staticmethod
+    def detect_file_type(file, videos, subtitles):
+        """
+        Put the file into the video or subtitle list based on it's extension.
+        :param file:
+        :param videos:
+        :param subtitles:
+        :return:
+        """
+        vid_match = re.search('(.*)\.(avi|mkv|mp4)$', file)
+        sub_match = re.search('(.*)\.(srt|ass)$', file)
+
+        if vid_match:
+            videos.append(file)
+
+        if sub_match:
+            subtitles.append(file)
+
+    @staticmethod
+    def process_videos_subtitles(videos, subtitles):
+        """
+        Encode and rename matching video - subtitle pairs.
+        :param videos:
+        :param subtitles:
+        :return:
+        """
+        for video in videos:
+            vid_season_ep = Subtitler.get_episode(video)
+            for subtitle in subtitles:
+                sub_season_ep = Subtitler.get_episode(subtitle)
+                if vid_season_ep[0] == sub_season_ep[0] and vid_season_ep[1] == sub_season_ep[1]:
+                    Subtitler.encode_sub(subtitle)
+                    Subtitler.rename_sub(video, subtitle)
+
+    @staticmethod
     def get_episode(input_file):
+        """
+        Extract season / episode number from filename.
+        :param input_file:
+        :return:
+        """
         season = 0
         episode = 0
 
@@ -57,6 +123,12 @@ class Subtitler:
 
     @staticmethod
     def rename_sub(video, subtitle):
+        """
+        Rename subtitle file to match video file's name.
+        :param video:
+        :param subtitle:
+        :return:
+        """
         vid_match = re.search('(.*)\.(avi|mkv|mp4)$', video)
         sub_match = re.search('(.*)\.(srt|ass)$', subtitle)
 
@@ -71,7 +143,12 @@ class Subtitler:
 
     @staticmethod
     def encode_sub(subtitle):
-        temp = str(time.time()) + '.tmp'
+        """
+        Encode subtitle file to UTF-8.
+        :param subtitle:
+        :return:
+        """
+        temp = os.path.dirname(subtitle) + '/' + str(time.time()) + '.tmp'
         try:
             with open(subtitle, encoding='UTF-8') as input_sub:
                 data = input_sub.read()
@@ -94,84 +171,46 @@ class Subtitler:
     def main(self):
         arg_num = len(sys.argv)
 
-        files = []
         videos = []
         subtitles = []
 
-        working_dir = ''
-
-        if arg_num > 2:
+        if arg_num > 1:
+            # Process input files and directories
             for arg in sys.argv:
-                files.append(arg)
-
-            working_dir_matcher = re.search(r'(.*)(/|\\).*$', sys.argv[1])
-            if working_dir_matcher:
-                working_dir = working_dir_matcher.group(1)
-        elif arg_num == 2:
-            working_dir = sys.argv[1]
-
-            if not (os.path.exists(working_dir) or os.path.isdir(working_dir)):
-                print("Single argument must be a directory.\n")
-                sys.exit(1)
-
-            files = os.listdir(working_dir)
-
-        for file in files:
-            vid_match = re.search('(.*)\.(avi|mkv|mp4)$', file)
-            sub_match = re.search('(.*)\.(srt|ass)$', file)
-
-            if vid_match:
-                videos.append(file)
-
-            if sub_match:
-                subtitles.append(file)
+                if os.path.exists(arg) and os.path.isdir(arg):
+                    for file in os.listdir(arg):
+                        self.detect_file_type(file, videos, subtitles)
+                elif os.path.exists(arg) and os.path.isfile(arg):
+                    self.detect_file_type(arg, videos, subtitles)
+                else:
+                    print("Invalid arguments")
+                    sys.exit(1)
+        else:
+            print("Usage: subtitler.py [file...|directory]")
+            sys.exit(1)
 
         if len(videos) == 0:
             print("No videos found!\n")
             sys.exit(1)
 
-        os.chdir(working_dir)
-
         if len(videos) == 1:
             if len(subtitles) == 0:
-                for video in videos:
-                    subtitles.append(self.download_subtitle(video, 'hun'))
-                    subtitles.append(self.download_subtitle(video, 'eng'))
-
-                if len(subtitles) == 0:
-                    print("No subtitles found!\n")
-                    sys.exit(1)
-
-                for subtitle in subtitles:
-                    if subtitle is not None:
-                        self.encode_sub(subtitle)
+                # One video, no subtitles, download subtitles
+                self.fetch_subtitles(videos, subtitles)
             elif len(subtitles) == 1:
+                # One video, one subtitle, doesn't need to check season / episode
                 self.encode_sub(subtitles[0])
                 self.rename_sub(videos[0], subtitles[0])
-
+            else:
+                # One video, multiple subtitles, look for matching subtitle based on season / episode
+                self.process_videos_subtitles(videos, subtitles)
         else:
             if len(subtitles) == 0:
-                for video in videos:
-                    subtitles.append(self.download_subtitle(video, 'hun'))
-                    subtitles.append(self.download_subtitle(video, 'eng'))
-
-                    if len(subtitles) == 0:
-                        print("No subtitles found!\n")
-                        sys.exit(1)
-
-                    for subtitle in subtitles:
-                        if subtitle is not None:
-                            self.encode_sub(subtitle)
-
-                    subtitles.clear()
+                # Multiple videos, no subtitles, download subtitles
+                self.fetch_subtitles(videos, subtitles)
             else:
-                for video in videos:
-                    vid_season_ep = self.get_episode(video)
-                    for subtitle in subtitles:
-                        sub_season_ep = self.get_episode(subtitle)
-                        if vid_season_ep[0] == sub_season_ep[0] and vid_season_ep[1] == sub_season_ep[1]:
-                            self.encode_sub(subtitle)
-                            self.rename_sub(video, subtitle)
+                # Multiple videos, multiple subtitles, look for matching subtitles based on season / episode
+                self.process_videos_subtitles(videos, subtitles)
 
         print("Done!")
         sys.exit(0)
