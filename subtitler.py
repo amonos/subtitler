@@ -53,26 +53,6 @@ class Subtitler:
             print("No subtitles found for video {:s} with language {:s}".format(video, language))
             return None
 
-    def fetch_subtitles(self, videos, subtitles):
-        """
-        Try to download english and hungarian subtitles for the video file
-        :param videos:
-        :param subtitles:
-        :return:
-        """
-        for video in videos:
-            for lang in self.subtitle_downloader_languages:
-                subtitles.append(Subtitler.download_subtitle(video, lang))
-
-        if len(subtitles) == 0:
-            print("No subtitles found!\n")
-            sys.exit(1)
-
-        for subtitle in subtitles:
-            if subtitle is not None:
-                Subtitler.encode_sub(subtitle)
-        subtitles.clear()
-
     @staticmethod
     def detect_file_type(file, videos, subtitles):
         """
@@ -174,6 +154,26 @@ class Subtitler:
         output.close()
 
         shutil.move(temp, subtitle)
+
+    def fetch_subtitles(self, videos, subtitles):
+        """
+        Try to download english and hungarian subtitles for the video file
+        :param videos:
+        :param subtitles:
+        :return:
+        """
+        for video in videos:
+            for lang in self.subtitle_downloader_languages:
+                subtitles.append(Subtitler.download_subtitle(video, lang))
+
+        if len(subtitles) == 0:
+            print("No subtitles found!\n")
+            sys.exit(1)
+
+        for subtitle in subtitles:
+            if subtitle is not None:
+                Subtitler.encode_sub(subtitle)
+        subtitles.clear()
 
     def main(self):
         arg_num = len(sys.argv)
