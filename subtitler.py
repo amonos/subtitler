@@ -157,7 +157,7 @@ class Subtitler:
                 data = input_sub.read()
 
         print("Encoding subtitle {:s} to UTF-8".format(subtitle))
-        with open(temp, 'w+') as output:
+        with open(temp, 'w+', encoding='UTF-8') as output:
             output.write(data)
 
         input_sub.close()
