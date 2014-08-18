@@ -1,3 +1,4 @@
+import configparser
 import sys
 import os
 import re
@@ -8,6 +9,16 @@ from opensubtitles import OpenSubtitles
 
 
 class Subtitler:
+
+    def __init__(self):
+        self.cp = configparser.ConfigParser()
+        self.subtitle_downloader_languages = None
+        self.parse_config()
+
+    def parse_config(self):
+        self.cp.read('subtitler.conf', encoding='UTF-8')
+        languages = self.cp['SubtitleDownloader']['languages']
+        self.subtitle_downloader_languages = languages.split(',')
 
     @staticmethod
     def download_subtitle(video, language):
@@ -42,8 +53,7 @@ class Subtitler:
             print("No subtitles found for video {:s} with language {:s}".format(video, language))
             return None
 
-    @staticmethod
-    def fetch_subtitles(videos, subtitles):
+    def fetch_subtitles(self, videos, subtitles):
         """
         Try to download english and hungarian subtitles for the video file
         :param videos:
@@ -51,8 +61,8 @@ class Subtitler:
         :return:
         """
         for video in videos:
-            subtitles.append(Subtitler.download_subtitle(video, 'hun'))
-            subtitles.append(Subtitler.download_subtitle(video, 'eng'))
+            for lang in self.subtitle_downloader_languages:
+                subtitles.append(Subtitler.download_subtitle(video, lang))
 
         if len(subtitles) == 0:
             print("No subtitles found!\n")
