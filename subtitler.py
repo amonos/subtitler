@@ -13,15 +13,16 @@ class Subtitler:
     def __init__(self):
         self.cp = configparser.ConfigParser()
         self.subtitle_downloader_languages = None
+        self.choose_subtitle = None
         self.parse_config()
 
     def parse_config(self):
         self.cp.read('subtitler.conf', encoding='UTF-8')
         languages = self.cp['SubtitleDownloader']['languages']
         self.subtitle_downloader_languages = languages.split(',')
+        self.choose_subtitle = int(self.cp['SubtitleDownloader']['chooseSubtitle'])
 
-    @staticmethod
-    def download_subtitle(video, language):
+    def download_subtitle(self, video, language):
         """
         Download subtitle from http://www.opensubtitles.org
         :param video:
@@ -33,8 +34,23 @@ class Subtitler:
         vid_hash = opensubtitles.hash(video)
         sub_infos = opensubtitles.search_subtitles([{'sublanguageid': language, 'moviehash': vid_hash, 'moviebytesize': str(os.path.getsize(video))}])
         if sub_infos:
-            print("Downloading subtitle: {:s}".format(sub_infos[0].get('SubFileName')))
-            subtitles = opensubtitles.download_subtitle([sub_infos[0].get('IDSubtitleFile')])
+            sub_index = 0
+            if self.choose_subtitle:
+                print("Language: {:s}".format(language))
+                for sub_info in sub_infos:
+                    print("[{:d}] {:s}".format(sub_infos.index(sub_info), sub_info.get('SubFileName')))
+
+                sub_index_input = input("Select a subtitle: ")
+                valid_input = False
+                while not valid_input:
+                    try:
+                        sub_index = int(sub_index_input)
+                        valid_input = True
+                    except:
+                        valid_input = False
+
+            print("Downloading subtitle: {:s}".format(sub_infos[sub_index].get('SubFileName')))
+            subtitles = opensubtitles.download_subtitle([sub_infos[sub_index].get('IDSubtitleFile')])
             if subtitles:
                 subtitle = subtitles[0].get('data')
 
@@ -97,14 +113,14 @@ class Subtitler:
         season = 0
         episode = 0
 
-        input_match = re.search('(\s|-|_|\.|\[|\()(\d{1,2})(\s|-|_|\.|\]|\))', input_file)
+        input_match = re.search('(\s|-|_|\.|\[|\()(\d{1,2})(\s|-|_|\.|\]|\))', input_file, re.IGNORECASE)
         if input_match:
             episode = input_match.group(2)
-        input_match = re.search('(\s|-|_|\.|\[|\()(\d{1,2})(\d{2})(\s|-|_|\.|\]|\))', input_file)
+        input_match = re.search('(\s|-|_|\.|\[|\()(\d{1,2})(\d{2})(\s|-|_|\.|\]|\))', input_file, re.IGNORECASE)
         if input_match:
             season = input_match.group(2)
             episode = input_match.group(3)
-        input_match = re.search('s(\d{1,2})e(\d{1,2})', input_file)
+        input_match = re.search('s(\d{1,2})e(\d{1,2})', input_file, re.IGNORECASE)
         if input_match:
             season = input_match.group(1)
             episode = input_match.group(2)
@@ -119,8 +135,8 @@ class Subtitler:
         :param subtitle:
         :return:
         """
-        vid_match = re.search('(.*)\.(avi|mkv|mp4)$', video)
-        sub_match = re.search('(.*)\.(srt|ass)$', subtitle)
+        vid_match = re.search('(.*)\.(avi|mkv|mp4)$', video, re.IGNORECASE)
+        sub_match = re.search('(.*)\.(srt|ass)$', subtitle, re.IGNORECASE)
 
         if vid_match and sub_match:
             vid_name = vid_match.group(1)
@@ -164,7 +180,7 @@ class Subtitler:
         """
         for video in videos:
             for lang in self.subtitle_downloader_languages:
-                subtitles.append(Subtitler.download_subtitle(video, lang))
+                subtitles.append(self.download_subtitle(video, lang))
 
         if len(subtitles) == 0:
             print("No subtitles found!\n")
