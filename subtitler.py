@@ -35,7 +35,7 @@ class Subtitler:
         sub_infos = opensubtitles.search_subtitles([{'sublanguageid': language, 'moviehash': vid_hash, 'moviebytesize': str(os.path.getsize(video))}])
         if sub_infos:
             sub_index = 0
-            if self.choose_subtitle:
+            if self.choose_subtitle and len(sub_infos) > 1:
                 print("Language: {:s}".format(language))
                 for sub_info in sub_infos:
                     print("[{:d}] {:s}".format(sub_infos.index(sub_info), sub_info.get('SubFileName')))
