@@ -69,6 +69,68 @@ class Subtitler:
             print("No subtitles found for video {:s} with language {:s}".format(video, language))
             return None
 
+    def load_input(self, base_path, videos, subtitles):
+        """
+        Load video and subtitle files recursively
+        :param base_path:
+        :param videos:
+        :param subtitles:
+        :return:
+        """
+        if os.path.exists(base_path) and os.path.isdir(base_path):
+            for file in os.listdir(base_path):
+                abs_file = os.path.join(base_path, file)
+                if os.path.isdir(abs_file):
+                    self.load_input(abs_file, videos, subtitles)
+                else:
+                    self.detect_file_type(abs_file, videos, subtitles)
+        elif os.path.exists(base_path) and os.path.isfile(base_path):
+            self.detect_file_type(base_path, videos, subtitles)
+        else:
+            print("No such file or directory: {:s}".format(base_path))
+
+        self.process_input(videos, subtitles)
+        videos.clear()
+        subtitles.clear()
+
+    def process_input(self, videos, subtitles):
+        if len(videos) == 0:
+            pass
+        elif len(videos) == 1:
+            if len(subtitles) == 0:
+                # One video, no subtitles, download subtitles
+                self.fetch_subtitles(videos, subtitles)
+            elif len(subtitles) == 1:
+                # One video, one subtitle, doesn't need to check season / episode
+                self.encode_sub(subtitles[0])
+                self.rename_sub(videos[0], subtitles[0])
+            else:
+                # One video, multiple subtitles, look for matching subtitle based on season / episode
+                self.rename_subtitles(videos, subtitles)
+        else:
+            if len(subtitles) == 0:
+                # Multiple videos, no subtitles, download subtitles
+                self.fetch_subtitles(videos, subtitles)
+            else:
+                # Multiple videos, multiple subtitles, look for matching subtitles based on season / episode
+                self.rename_subtitles(videos, subtitles)
+
+    @staticmethod
+    def rename_subtitles(videos, subtitles):
+        """
+        Rename existing subtitle files
+        :param videos:
+        :param subtitles:
+        :return:
+        """
+        for video in videos:
+            vid_season_ep = Subtitler.get_episode(video)
+            for subtitle in subtitles:
+                sub_season_ep = Subtitler.get_episode(subtitle)
+                if vid_season_ep[0] == sub_season_ep[0] and vid_season_ep[1] == sub_season_ep[1]:
+                    Subtitler.encode_sub(subtitle)
+                    Subtitler.rename_sub(video, subtitle)
+
     @staticmethod
     def detect_file_type(file, videos, subtitles):
         """
@@ -88,7 +150,7 @@ class Subtitler:
             subtitles.append(file)
 
     @staticmethod
-    def process_videos_subtitles(videos, subtitles):
+    def rename_subtitles(videos, subtitles):
         """
         Encode and rename matching video - subtitle pairs.
         :param videos:
@@ -192,48 +254,19 @@ class Subtitler:
         subtitles.clear()
 
     def main(self):
-        arg_num = len(sys.argv)
-
         videos = []
         subtitles = []
 
+        arg_num = len(sys.argv)
+
         if arg_num > 1:
-            # Process input files and directories
             for arg in sys.argv:
-                if os.path.exists(arg) and os.path.isdir(arg):
-                    for file in os.listdir(arg):
-                        self.detect_file_type(os.path.join(arg, file), videos, subtitles)
-                elif os.path.exists(arg) and os.path.isfile(arg):
-                    self.detect_file_type(arg, videos, subtitles)
-                else:
-                    print("No such file or directory: {:s}".format(arg))
-                    sys.exit(1)
+                self.load_input(arg, videos, subtitles)
         else:
             print("Usage: {:s} [video|subtitle|directory]...".format(os.path.basename(sys.argv[0])))
             sys.exit(1)
 
-        if len(videos) == 0:
-            print("No videos found!\n")
-            sys.exit(1)
-
-        if len(videos) == 1:
-            if len(subtitles) == 0:
-                # One video, no subtitles, download subtitles
-                self.fetch_subtitles(videos, subtitles)
-            elif len(subtitles) == 1:
-                # One video, one subtitle, doesn't need to check season / episode
-                self.encode_sub(subtitles[0])
-                self.rename_sub(videos[0], subtitles[0])
-            else:
-                # One video, multiple subtitles, look for matching subtitle based on season / episode
-                self.process_videos_subtitles(videos, subtitles)
-        else:
-            if len(subtitles) == 0:
-                # Multiple videos, no subtitles, download subtitles
-                self.fetch_subtitles(videos, subtitles)
-            else:
-                # Multiple videos, multiple subtitles, look for matching subtitles based on season / episode
-                self.process_videos_subtitles(videos, subtitles)
+        self.process_input(videos, subtitles)
 
         print("Done!")
         sys.exit(0)
