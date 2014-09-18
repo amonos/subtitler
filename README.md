@@ -10,8 +10,10 @@ in the video's directory.
 Usage:
 ------
 ```
-$ python subtitler.py [file|directory]...
+$ python subtitler.py [video_file|directory]...
 ```
+Valid command line arguments:
+* One or more video files and/or directories containing video files (and optionally subtitle files).
 
 Configuration:
 --------------
@@ -24,9 +26,8 @@ You can configure the application through the subtitler.conf file.
 
 Additional information:
 -----------------------
-If there are multiple videos (and/or subtitles) on the input then they will be matched by
-season/episode information in the filenames.
-
-Multiple videos whitout season/episode information in the filename, or multiple CDs for a movie is not supported.
-
-Python 3 required
+* Directories are read recursively
+* If there are multiple video files (and optionally subtitle files) in a directory then they will be matched by season and episode information
+  in the filenames.
+* Multiple videos whitout season and episode information in the filename, or multiple CDs for a movie is not supported in the same directory.
+* Python 3.4 required

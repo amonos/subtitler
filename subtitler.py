@@ -270,7 +270,7 @@ class Subtitler:
             for arg in sys.argv:
                 self.load_input(arg, videos, subtitles)
         else:
-            print("Usage: {:s} [video|subtitle|directory]...".format(os.path.basename(sys.argv[0])))
+            print("Usage: {:s} [video|directory]...".format(os.path.basename(sys.argv[0])))
             sys.exit(1)
 
         self.process_input(videos, subtitles)
