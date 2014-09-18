@@ -71,7 +71,8 @@ class Subtitler:
 
     def load_input(self, base_path, videos, subtitles):
         """
-        Load video and subtitle files recursively
+        Load video and subtitle files recursively, process them
+        on a per directory basis
         :param base_path:
         :param videos:
         :param subtitles:
@@ -94,6 +95,12 @@ class Subtitler:
         subtitles.clear()
 
     def process_input(self, videos, subtitles):
+        """
+        Process the video and subtitle files
+        :param videos:
+        :param subtitles:
+        :return:
+        """
         if len(videos) == 0:
             pass
         elif len(videos) == 1:
