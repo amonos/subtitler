@@ -5,7 +5,7 @@ Introduction:
 -------------
 Renames subtitle files to match the video's filename, encodes the subtitles to UTF-8,
 and downloads subtitles from http://www.opensubtitles.org if there isn't any subtitle
-files in the commandline arguments.
+in the video's directory.
 
 Usage:
 ------
