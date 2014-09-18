@@ -15,7 +15,7 @@ $ python subtitler.py [file|directory]...
 
 Configuration:
 --------------
-You can configure the application throught the subtitler.conf file.
+You can configure the application through the subtitler.conf file.
 
 ### Properties: ###
 * langauges=[hun|eng|...],... : Defines the subtitle languages the application will search for when downloading subtitles (Uses ISO639 codes).
