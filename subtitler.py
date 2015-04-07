@@ -54,7 +54,7 @@ class Subtitler:
             if subtitles:
                 subtitle = subtitles[0].get('data')
 
-                vid_match = re.search('(.*)\.(avi|mkv|mp4)$', video)
+                vid_match = re.search('(.*)\.(avi|mkv|mp4)$', video, re.IGNORECASE)
                 if vid_match:
                     vid_name = vid_match.group(1)
 
@@ -147,30 +147,14 @@ class Subtitler:
         :param subtitles:
         :return:
         """
-        vid_match = re.search('(.*)\.(avi|mkv|mp4)$', file)
-        sub_match = re.search('(.*)\.(srt|ass)$', file)
+        vid_match = re.search('(.*)\.(avi|mkv|mp4)$', file, re.IGNORECASE)
+        sub_match = re.search('(.*)\.(srt|ass)$', file, re.IGNORECASE)
 
         if vid_match:
             videos.append(file)
 
         if sub_match:
             subtitles.append(file)
-
-    @staticmethod
-    def rename_subtitles(videos, subtitles):
-        """
-        Encode and rename matching video - subtitle pairs.
-        :param videos:
-        :param subtitles:
-        :return:
-        """
-        for video in videos:
-            vid_season_ep = Subtitler.get_episode(video)
-            for subtitle in subtitles:
-                sub_season_ep = Subtitler.get_episode(subtitle)
-                if vid_season_ep[0] == sub_season_ep[0] and vid_season_ep[1] == sub_season_ep[1]:
-                    Subtitler.encode_sub(subtitle)
-                    Subtitler.rename_sub(video, subtitle)
 
     @staticmethod
     def get_episode(input_file):
@@ -186,6 +170,10 @@ class Subtitler:
         if input_match:
             episode = input_match.group(2)
         input_match = re.search('(\s|-|_|\.|\[|\()(\d{1,2})(\d{2})(\s|-|_|\.|\]|\))', input_file, re.IGNORECASE)
+        if input_match:
+            season = input_match.group(2)
+            episode = input_match.group(3)
+        input_match = re.search('(\s|-|_|\.|\[|\()(\d{1,2})x(\d{2})(\s|-|_|\.|\]|\))', input_file, re.IGNORECASE)
         if input_match:
             season = input_match.group(2)
             episode = input_match.group(3)
@@ -242,14 +230,16 @@ class Subtitler:
 
     def fetch_subtitles(self, videos, subtitles):
         """
-        Try to download english and hungarian subtitles for the video file
+        Try to download subtitles for the video file
         :param videos:
         :param subtitles:
         :return:
         """
         for video in videos:
-            for lang in self.subtitle_downloader_languages:
-                subtitles.append(self.download_subtitle(video, lang))
+            languages = self.subtitle_downloader_languages
+            if languages is not None:
+                for lang in languages:
+                    subtitles.append(self.download_subtitle(video, lang))
 
         if len(subtitles) == 0:
             print("No subtitles found!\n")

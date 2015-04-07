@@ -7,7 +7,7 @@ import xmlrpc.client
 
 class OpenSubtitles:
     OPEN_SUBTITLES_SERVER = 'http://api.opensubtitles.org/xml-rpc'
-    USER_AGENT = 'OS Test User Agent'
+    USER_AGENT = 'OSTestUserAgent'
     LANGUAGE = 'en'
 
     def __init__(self):
