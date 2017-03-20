@@ -1,7 +1,5 @@
 import os
 import struct
-import base64
-import gzip
 import xmlrpc.client
 
 
@@ -16,43 +14,19 @@ class OpenSubtitles:
         if self.token is None:
             print("Couldn't log in to OpenSubtitles.org")
 
-    @staticmethod
-    def write_subtitle_file(data, file):
-        """
-        Unpack base64 encoded and gzip archived subtitle data and write it to disk.
-        :param data:
-        :param file:
-        :return:
-        """
-        file_data = base64.b64decode(data)
-        byte = gzip.decompress(file_data)
-
-        try:
-            with open(file, 'bw+') as subtitle:
-                subtitle.write(byte)
-        except:
-            print("Couldn't write subtitle file")
+    def login(self):
+        data = self.xmlrpc.LogIn(None, None, self.LANGUAGE, self.USER_AGENT)
+        return self.safe_get_value(data, 'token')
 
     @staticmethod
-    def get_from_data_or_none(data, key):
-        """
-        Get data from the XMLRPC response, or None if an error occured
-        :param data:
-        :param key:
-        :return:
-        """
+    def safe_get_value(data, key):
         status = data.get('status').split()[0]
         return data.get(key) if '200' == status else None
 
     @staticmethod
     def hash(vid_name):
-        """
-        Opensubtitles' hash method for searching based on movie file
-        :param vid_name:
-        :return:
-        """
         try:
-            long_long_format = 'q'  # long long
+            long_long_format = 'q'
             byte_size = struct.calcsize(long_long_format)
 
             f = open(vid_name, "rb")
@@ -83,28 +57,10 @@ class OpenSubtitles:
         except IOError:
             return "IOError"
 
-    def login(self):
-        """
-        Log in to opensubtitles as anonymous user
-        :return:
-        """
-        data = self.xmlrpc.LogIn(None, None, self.LANGUAGE, self.USER_AGENT)
-        return self.get_from_data_or_none(data, 'token')
-
     def search_subtitles(self, params):
-        """
-        Search the subtitle database
-        :param params:
-        :return:
-        """
         data = self.xmlrpc.SearchSubtitles(self.token, params)
-        return self.get_from_data_or_none(data, 'data')
+        return self.safe_get_value(data, 'data')
 
     def download_subtitle(self, subtitle_ids):
-        """
-        Retrive the subtitles
-        :param subtitle_ids:
-        :return:
-        """
         data = self.xmlrpc.DownloadSubtitles(self.token, subtitle_ids)
-        return self.get_from_data_or_none(data, 'data')
+        return self.safe_get_value(data, 'data')
