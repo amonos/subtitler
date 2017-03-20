@@ -144,21 +144,22 @@ class Subtitler:
                 print("No subtitles found for video {:s} with language {:s}".format(video, lang))
 
     def choose_subtitle_to_download(self, sub_infos, lang):
+        sub_index = 0
         if self.choose_subtitle and len(sub_infos) > 1:
             print("Language: {:s}".format(lang))
             for sub_info in sub_infos:
                 print("[{:d}] {:s}".format(sub_infos.index(sub_info), sub_info.get('SubFileName')))
 
-        sub_index = 0
-        valid_input = False
-        while not valid_input:
-            try:
-                sub_index_input = input("Select a subtitle: ")
-                sub_index = int(sub_index_input)
-                if sub_index < len(sub_infos):
-                    valid_input = True
-            except ValueError:
-                pass
+            valid_input = False
+            while not valid_input:
+                try:
+                    sub_index_input = input("Select a subtitle: ")
+                    sub_index = int(sub_index_input)
+                    if sub_index < len(sub_infos):
+                        valid_input = True
+                except ValueError:
+                    pass
+
         return sub_index
 
     def fetch_subtitle(self, sub_index, sub_infos):
@@ -201,7 +202,7 @@ class Subtitler:
         try:
             with open(subtitle, encoding='UTF-8') as input_sub:
                 data = input_sub.read()
-        except IOError:
+        except UnicodeDecodeError:
             with open(subtitle, encoding='ISO-8859-1') as input_sub:
                 data = input_sub.read()
 
