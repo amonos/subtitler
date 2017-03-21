@@ -4,8 +4,8 @@ subtitler
 Introduction:
 -------------
 Renames subtitle files to match the video's filename, encodes the subtitles to UTF-8,
-and downloads subtitles from http://www.opensubtitles.org if there isn't any subtitle
-in the video's directory.
+and downloads subtitles from http://www.opensubtitles.org if there isn't any subtitles
+matching the video.
 
 Usage:
 ------
