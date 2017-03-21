@@ -29,13 +29,13 @@ class OpenSubtitles:
             long_long_format = 'q'
             byte_size = struct.calcsize(long_long_format)
 
-            f = open(vid_name, "rb")
+            f = open(vid_name, 'rb')
 
             file_size = os.path.getsize(vid_name)
             vid_hash = file_size
 
             if file_size < 65536 * 2:
-                return "SizeError"
+                return 'SizeError'
 
             for x in range(int(65536 / byte_size)):
                 buffer = f.read(byte_size)
@@ -51,11 +51,11 @@ class OpenSubtitles:
                 vid_hash &= 0xFFFFFFFFFFFFFFFF
 
             f.close()
-            returned_hash = "%016x" % vid_hash
+            returned_hash = '%016x' % vid_hash
             return returned_hash
 
         except IOError:
-            return "IOError"
+            return 'IOError'
 
     def search_subtitles(self, params):
         data = self.xmlrpc.SearchSubtitles(self.token, params)
