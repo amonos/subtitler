@@ -6,7 +6,7 @@ import shutil
 import sys
 import time
 
-from api.opensubtitles import OpenSubtitles
+from opensubtitles import OpenSubtitles
 
 
 class SubtitleProcessor:

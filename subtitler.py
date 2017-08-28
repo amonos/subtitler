@@ -1,6 +1,6 @@
 import configparser
 
-from core.subtitle_processor import SubtitleProcessor
+from subtitle_processor import SubtitleProcessor
 
 
 class Subtitler:
