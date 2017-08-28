@@ -4,18 +4,18 @@ import xmlrpc.client
 
 
 class OpenSubtitles:
-    OPEN_SUBTITLES_SERVER = 'http://api.opensubtitles.org/xml-rpc'
-    USER_AGENT = 'Python Subtitler'
-    LANGUAGE = 'en'
+    _open_subtitles_server = 'http://api.opensubtitles.org/xml-rpc'
+    _user_agent = 'Python Subtitler'
+    _language = 'en'
 
     def __init__(self):
-        self.xmlrpc = xmlrpc.client.ServerProxy(self.OPEN_SUBTITLES_SERVER, allow_none=True)
+        self.xmlrpc = xmlrpc.client.ServerProxy(self._open_subtitles_server, allow_none=True)
         self.token = self.login()
         if self.token is None:
             print("Couldn't log in to OpenSubtitles.org")
 
     def login(self):
-        data = self.xmlrpc.LogIn(None, None, self.LANGUAGE, self.USER_AGENT)
+        data = self.xmlrpc.LogIn(None, None, self._language, self._user_agent)
         return self.safe_get_value(data, 'token')
 
     @staticmethod
